@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    {% if check == "notcreated" %}        
+        <form action="{% url 'home' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            Upload PDF file:
+            <input type="file" name="pdf" id="pdf">
+            <input type="submit" value="Upload">
+        </form>
+
+                <br>
+                <h1>OR</h1>
+                <br>
+
+            <form action="{% url 'viewpdf' id='code' %}" method="post">
+                {% csrf_token %}
+
+                Enter Code: 
+                <input type="text" name="code" id="code" placeholder="Enter Code">
+                <input type="submit" value="View">
+            </form>
+            
+    {% elif check == "created" %}
+
+        <h1>Successfully Created</h1>
+        <br>
+        Code: <h1>{{code}}</h1>
+        <br>
+        <form action="{% url 'viewpdf' id='code' %}" method="post">
+            {% csrf_token %}
+
+            Enter Code: 
+            <input type="text" name="code" id="code" placeholder="Enter Code">
+            <input type="submit" value="View">
+        </form>
+
+    {% endif %}
+        
+</body>
+</html>

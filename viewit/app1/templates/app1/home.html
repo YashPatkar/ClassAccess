@@ -19,7 +19,7 @@
                 <h1>OR</h1>
                 <br>
 
-            <form action="{% url 'viewpdf' id='code' %}" method="post">
+            <form action="{% url 'viewpdf' code='code' %}" method="post">
                 {% csrf_token %}
 
                 Enter Code: 
@@ -33,7 +33,7 @@
         <br>
         Code: <h1>{{code}}</h1>
         <br>
-        <form action="{% url 'viewpdf' id='code' %}" method="post">
+        <form action="{% url 'viewpdf' code='code' %}" method="post">
             {% csrf_token %}
 
             Enter Code: 

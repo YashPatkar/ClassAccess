@@ -11,7 +11,7 @@
         <form action="{% url 'home' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             Upload PDF file:
-            <input type="file" name="pdf" id="pdf">
+            <input type="file" name="pdf" id="pdf" required>
             <input type="submit" value="Upload">
         </form>
 
@@ -19,11 +19,9 @@
                 <h1>OR</h1>
                 <br>
 
-            <form action="{% url 'viewpdf' code='code' %}" method="post">
-                {% csrf_token %}
-
+            <form action="{% url 'viewpdf' %}" method="get">
                 Enter Code: 
-                <input type="text" name="code" id="code" placeholder="Enter Code">
+                <input type="text" name="code" id="code" placeholder="Enter Code" required>
                 <input type="submit" value="View">
             </form>
             
@@ -33,11 +31,11 @@
         <br>
         Code: <h1>{{code}}</h1>
         <br>
-        <form action="{% url 'viewpdf' code='code' %}" method="post">
+        <form action="{% url 'viewpdf' code=code %}" method="get">
             {% csrf_token %}
 
             Enter Code: 
-            <input type="text" name="code" id="code" placeholder="Enter Code">
+            <input type="text" name="code" id="code" placeholder="Enter Code" required>
             <input type="submit" value="View">
         </form>
 

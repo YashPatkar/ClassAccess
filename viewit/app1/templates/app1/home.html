@@ -31,8 +31,7 @@
         <br>
         Code: <h1>{{code}}</h1>
         <br>
-        <form action="{% url 'viewpdf' code=code %}" method="get">
-            {% csrf_token %}
+        <form action="{% url 'viewpdf' %}" method="get">
 
             Enter Code: 
             <input type="text" name="code" id="code" placeholder="Enter Code" required>

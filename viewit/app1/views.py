@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import random, os
-import datetime as dt
 from .models import pdfcode, pdfpath
 
 def home(request):
@@ -20,6 +19,8 @@ def home(request):
         filename = f"{code}.pdf"
         fs.save(filename, pdf)
         full_path = os.path.join('media', filename)
+        print(full_path)
+        print('=====================================================')
 
         # Generate code for the pdf
         pdfCode = pdfcode.objects.create(code=code)
@@ -36,11 +37,19 @@ def home(request):
 
 def viewpdf(request):
     usercode = request.GET.get('code')
-    if os.path.exists(f'media/{usercode}.pdf') and pdfpath.objects.filter(code=usercode).exists():
-        try:
-            pdfCode = pdfcode.objects.get(code=usercode).code
-            filepath = pdf_entry.path
-        except pdfpath.DoesNotExist:
-            filepath = None
+    print(usercode)
+    print('--------------------------------------------------------------------')
+    if not usercode:
+        return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
+    
+    try:
+        # Check if the record exists
+        filepath = pdfpath.objects.get(code=usercode).path  
+          # Retrieve the file path
+        filepath = filepath.replace("\\", "/")  # Normalize the file path for compatibility
+        print(f"Filepath retrieved: {filepath}")
+        
         return render(request, 'app1/view.html', {'filepath': filepath, 'valid': True})
-    return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
+    except pdfpath.DoesNotExist:
+        print("No PDF entry found for the provided code.")
+        return render(request, 'app1/view.html', {'filepath': None, 'valid': False})

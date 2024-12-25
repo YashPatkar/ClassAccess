@@ -8,8 +8,9 @@
 <body>
     
     {% if valid %}
-        <iframe src="{{ filepath }}" width="100vh" height="100vh"></iframe>
+        <iframe src="{{ filepath }} " width="100vh" height="100vh"></iframe>
     {% else %}
+        {{ filepath }}
        <h2><i> No file found</i></h2>
     {% endif %}
         

@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import random, os
 from .models import pdfcode, pdfpath
+from django.conf import settings
 
 def home(request):
     if request.method == 'POST':
@@ -43,12 +44,10 @@ def viewpdf(request):
         return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
     
     try:
-        # Check if the record exists
-        filepath = pdfpath.objects.get(code=usercode).path  
-          # Retrieve the file path
-        filepath = filepath.replace("\\", "/")  # Normalize the file path for compatibility
-        print(f"Filepath retrieved: {filepath}")
-        
+        db_path = pdfpath.objects.get(code__code=usercode).path 
+        # Remove MEDIA_ROOT prefix to get the relative URL
+        relative_path = db_path.replace(settings.MEDIA_ROOT, '').lstrip('/')
+        filepath = f"{settings.MEDIA_URL}{relative_path}"  # Construct the media URL
         return render(request, 'app1/view.html', {'filepath': filepath, 'valid': True})
     except pdfpath.DoesNotExist:
         print("No PDF entry found for the provided code.")

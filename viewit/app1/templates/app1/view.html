@@ -8,11 +8,12 @@
 <body>
     
     {% if valid %}
-        <iframe src="{{ filepath }} " width="100vh" height="100vh"></iframe>
-    {% else %}
-        {{ filepath }}
-       <h2><i> No file found</i></h2>
-    {% endif %}
+<embed src="{{ filepath }}" type="application/pdf" width="100%" height="600px">
+<p>Your browser does not support PDFs. Please download the PDF to view it: <a href="{{ filepath }}">Download PDF</a>.</p>
+{% else %}
+<p>Invalid PDF code or file not found.</p>
+{% endif %}
+
         
 </body>
 </html>

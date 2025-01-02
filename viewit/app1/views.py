@@ -12,14 +12,14 @@ def home(request):
         while pdfcode.objects.filter(code=code).exists():
             code = random.randint(1000, 99999)
         
-        if not os.path.exists('media'):
-            os.makedirs('media')
+        if not os.path.exists(settings.MEDIA_ROOT):
+            os.makedirs(settings.MEDIA_ROOT)
         
         # Saving pdf file in media
-        fs = FileSystemStorage(location='media')
+        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
         filename = f"{code}.pdf"
         fs.save(filename, pdf)
-        full_path = os.path.join('media', filename)
+        full_path = os.path.join('app1', 'media', filename).replace('\\', '/')
         print(full_path)
         print('=====================================================')
 
@@ -38,16 +38,12 @@ def home(request):
 
 def viewpdf(request):
     usercode = request.GET.get('code')
-    print(usercode)
-    print('--------------------------------------------------------------------')
-    if not usercode:
-        return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
-    
     try:
-        db_path = pdfpath.objects.get(code__code=usercode).path 
-        # Remove MEDIA_ROOT prefix to get the relative URL
-        relative_path = db_path.replace(settings.MEDIA_ROOT, '').lstrip('/')
-        filepath = f"{settings.MEDIA_URL}{relative_path}"  # Construct the media URL
+        if not pdfcode.objects.filter(code=usercode).exists():
+            print("No code found")
+            return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
+        
+        filepath = pdfpath.objects.get(code__code=usercode).path.strip()
         return render(request, 'app1/view.html', {'filepath': filepath, 'valid': True})
     except pdfpath.DoesNotExist:
         print("No PDF entry found for the provided code.")

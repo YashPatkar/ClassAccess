@@ -9,9 +9,8 @@
     {% if filepath %}
         <object data="{{ filepath }}" type="application/pdf" width="100%" height="600px">
             <!-- Fallback content -->
-            <p>Your browser does not support viewing PDFs. Please download the PDF to view it: 
                 <a href="{{ filepath }}">Download PDF</a>.
-            </p>
+            
         </object>
     {% else %}
         No pdf File is there

@@ -4,4 +4,5 @@ from app1 import views
 urlpatterns = [
     path('', views.home, name = "home"),
     path('viewpdf/', views.viewpdf, name = "viewpdf"),
+    path('pdfValidation/<code>/', views.pdfValidation, name = "pdfValidation"),
 ]

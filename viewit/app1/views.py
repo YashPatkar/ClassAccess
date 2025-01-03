@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import random, os
@@ -31,7 +31,6 @@ def home(request):
         print("PDF saved successfully")
         # saving code in session
         request.session['user'] = {'code': code}
-        
         return render(request, 'app1/home.html', \
                       {'check': "created", 'code': code})
     return render(request, 'app1/home.html', {'check': "notcreated"})
@@ -43,8 +42,17 @@ def viewpdf(request):
             print("No code found")
             return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
         
-        filepath = pdfpath.objects.get(code__code=usercode).path.strip()
-        return render(request, 'app1/view.html', {'filepath': filepath, 'valid': True})
+        PDFPATH = pdfpath.objects.get(code__code=usercode)
+        code = PDFPATH.code.code
+        request.session['access'] = 'granted'
+        return render(request, 'app1/view.html', {'code': code, 'valid': True})
     except pdfpath.DoesNotExist:
         print("No PDF entry found for the provided code.")
         return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
+    
+def pdfValidation(request, code):
+    if request.session.get('access') == 'granted':
+        PDFPATH = get_object_or_404(pdfpath, code__code=code)
+        filepath = PDFPATH.path
+        return render(request, 'app1/viewpdf.html', {'filepath': filepath})
+    return HttpResponse('Some Error is there')

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if filepath %}
+        <object data="{{ filepath }}" type="application/pdf" width="100%" height="600px">
+            <!-- Fallback content -->
+            <p>Your browser does not support viewing PDFs. Please download the PDF to view it: 
+                <a href="{{ filepath }}">Download PDF</a>.
+            </p>
+        </object>
+    {% else %}
+        No pdf File is there
+    {% endif %}
+</body>
+</html>

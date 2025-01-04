@@ -44,8 +44,9 @@ def viewpdf(request):
         
         PDFPATH = pdfpath.objects.get(code__code=usercode)
         code = PDFPATH.code.code
+        filepath = PDFPATH.path
         request.session['access'] = 'granted'
-        return render(request, 'app1/view.html', {'code': code, 'valid': True})
+        return render(request, 'app1/view.html', {'filepath': filepath,'code': code, 'valid': True})
     except pdfpath.DoesNotExist:
         print("No PDF entry found for the provided code.")
         return render(request, 'app1/view.html', {'filepath': None, 'valid': False})

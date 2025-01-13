@@ -7,7 +7,23 @@
 </head>
 <body>
     
-    {% if check == "notcreated" %}        
+                
+    {% if check == "created" %}
+
+        <h1>Successfully Created</h1>
+        <br>
+        Code: <h1>{{code}}</h1>
+        <br>
+        <form action="{% url 'viewpdf' code=code %}" method="post">
+            {% csrf_token %}
+
+            Enter Code: 
+            <input type="text" name="code" id="code" placeholder="Enter Code" required>
+            <input type="submit" value="View">
+        </form>
+
+
+    {% elif check == "notcreated" %}        
         <form action="{% url 'home' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             Upload PDF file:
@@ -19,24 +35,12 @@
                 <h1>OR</h1>
                 <br>
 
-            <form action="{% url 'viewpdf' %}" method="get">
+            <form action="{% url 'viewpdf' code=code %}" method="post">
+                {% csrf_token %}
                 Enter Code: 
                 <input type="text" name="code" id="code" placeholder="Enter Code" required>
                 <input type="submit" value="View">
             </form>
-            
-    {% elif check == "created" %}
-
-        <h1>Successfully Created</h1>
-        <br>
-        Code: <h1>{{code}}</h1>
-        <br>
-        <form action="{% url 'viewpdf' %}" method="get">
-
-            Enter Code: 
-            <input type="text" name="code" id="code" placeholder="Enter Code" required>
-            <input type="submit" value="View">
-        </form>
 
     {% endif %}
         

@@ -2,58 +2,55 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import random, os
-from .models import pdfcode, pdfpath
+from .models import pdffile
 from django.conf import settings
 
 def home(request):
     if request.method == 'POST':
         pdf = request.FILES['pdf']
         code = random.randint(1000, 99999)
-        while pdfcode.objects.filter(code=code).exists():
+        while pdffile.objects.filter(code=code).exists():
             code = random.randint(1000, 99999)
         
-        if not os.path.exists(settings.MEDIA_ROOT):
-            os.makedirs(settings.MEDIA_ROOT)
+        media_path = os.path.join(settings.BASE_DIR, 'app1', 'media')
+        if not os.path.exists(media_path):
+            os.makedirs(media_path)
         
         # Saving pdf file in media
-        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+        fs = FileSystemStorage(location=media_path)
         filename = f"{code}.pdf"
         fs.save(filename, pdf)
-        full_path = os.path.join('app1', 'media', filename).replace('\\', '/')
+        full_path = f"media/{filename}"
         print(full_path)
         print('=====================================================')
 
-        # Generate code for the pdf
-        pdfCode = pdfcode.objects.create(code=code)
-
-        # Save the path of the pdf
-        pdfpath.objects.create(code=pdfCode, path=full_path)
+        pdf = pdffile.objects.create(code=str(code), path=full_path)
         print("PDF saved successfully")
         # saving code in session
-        request.session['user'] = {'code': code}
         return render(request, 'app1/home.html', \
                       {'check': "created", 'code': code})
     return render(request, 'app1/home.html', {'check': "notcreated"})
 
-def viewpdf(request):
-    usercode = request.GET.get('code')
-    try:
-        if not pdfcode.objects.filter(code=usercode).exists():
-            print("No code found")
-            return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
-        
-        PDFPATH = pdfpath.objects.get(code__code=usercode)
-        code = PDFPATH.code.code
-        filepath = PDFPATH.path
-        request.session['access'] = 'granted'
-        return render(request, 'app1/view.html', {'filepath': filepath,'code': code, 'valid': True})
-    except pdfpath.DoesNotExist:
-        print("No PDF entry found for the provided code.")
-        return render(request, 'app1/view.html', {'filepath': None, 'valid': False})
-    
-def pdfValidation(request, code):
-    if request.session.get('access') == 'granted':
-        PDFPATH = get_object_or_404(pdfpath, code__code=code)
-        filepath = PDFPATH.path
-        return render(request, 'app1/viewpdf.html', {'filepath': filepath})
-    return HttpResponse('Some Error is there')
+def viewpdf(request, code=None):
+    if request.method == 'POST':
+        if 'code' not in request.POST:
+            return HttpResponse("Invalid request. No code found", status=400)
+        code = request.POST['code']
+        try:
+            pdf_entry = get_object_or_404(pdffile, code=code)
+            file_url = f"/{pdf_entry.path}"
+            request.session['user'] = {'code': code, 'path': file_url}
+            return render(request, 'app1/viewpdf.html', {
+                'filepath': file_url,
+                'code': code,
+                'valid': True
+            })
+        except pdffile.DoesNotExist:
+            return HttpResponse("Invalid code. No PDF found!", status=404)
+    elif request.session.get('user'):
+         return render(request, 'app1/viewpdf.html', {
+                'filepath': request.session['user']['path'],
+                'code': request.session['user']['code'],
+                'valid': True
+        })
+    return HttpResponse("Invalid request method", status=400)

@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>View PDF</title>
 </head>
 <body>
-    {% if filepath %}
-        <object data="{{ filepath }}" type="application/pdf" width="100%" height="600px">
-            <!-- Fallback content -->
-                <a href="{{ filepath }}">Download PDF</a>.
-            
-        </object>
+    {% if valid %}
+        <embed src="{{ filepath }}" type="application/pdf" width="100%" height="1000">
     {% else %}
-        No pdf File is there
+        <h3>Invalid Code</h3>
+        <p>No PDF found for the provided code.</p>
     {% endif %}
 </body>
 </html>

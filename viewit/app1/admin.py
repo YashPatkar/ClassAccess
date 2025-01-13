@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import *
+from .models import pdffile
 # Register your models here.
-admin.site.register(pdfcode)
-admin.site.register(pdfpath)
+admin.site.register(pdffile)

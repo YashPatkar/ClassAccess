@@ -22,7 +22,6 @@
             <input type="submit" value="View">
         </form>
 
-
     {% elif check == "notcreated" %}        
         <form action="{% url 'home' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -35,7 +34,7 @@
                 <h1>OR</h1>
                 <br>
 
-            <form action="{% url 'viewpdf' code=code %}" method="post">
+            <form action="{% url 'viewpdf' code=code|default:'0'%}" method="post">
                 {% csrf_token %}
                 Enter Code: 
                 <input type="text" name="code" id="code" placeholder="Enter Code" required>

@@ -4,31 +4,28 @@ from django.core.files.storage import FileSystemStorage
 import random, os
 from .models import pdffile
 from django.conf import settings
+from utils import encryption
 
 def home(request):
     if request.method == 'POST':
         pdf = request.FILES['pdf']
-        code = random.randint(1000, 99999)
+        code = encryption.generate_code()
+        
         while pdffile.objects.filter(code=code).exists():
-            code = random.randint(1000, 99999)
+            code = encryption.generate_code()
         
         media_path = os.path.join(settings.BASE_DIR, 'app1', 'media')
         if not os.path.exists(media_path):
             os.makedirs(media_path)
         
-        # Saving pdf file in media
         fs = FileSystemStorage(location=media_path)
         filename = f"{code}.pdf"
         fs.save(filename, pdf)
         full_path = f"media/{filename}"
         print(full_path)
-        print('=====================================================')
 
         pdf = pdffile.objects.create(code=str(code), path=full_path)
-        print("PDF saved successfully")
-        # saving code in session
-        return render(request, 'app1/home.html', \
-                      {'check': "created", 'code': code})
+        return render(request, 'app1/home.html', {'check': "created", 'code': code})
     return render(request, 'app1/home.html', {'check': "notcreated"})
 
 def viewpdf(request, code=None):
@@ -47,10 +44,11 @@ def viewpdf(request, code=None):
             })
         except pdffile.DoesNotExist:
             return HttpResponse("Invalid code. No PDF found!", status=404)
-    elif request.session.get('user'):
+        
+    elif request.session.get('user') and str(code) == str(request.session['user']['code']):
          return render(request, 'app1/viewpdf.html', {
                 'filepath': request.session['user']['path'],
                 'code': request.session['user']['code'],
                 'valid': True
         })
-    return HttpResponse("Invalid request method", status=400)
+    return HttpResponse("Some Error Occured!!!", status=400)

@@ -22,7 +22,6 @@ def home(request):
         filename = f"{code}.pdf"
         fs.save(filename, pdf)
         full_path = f"media/{filename}"
-        print(full_path)
 
         pdf = pdffile.objects.create(code=str(code), path=full_path)
         return render(request, 'app1/home.html', {'check': "created", 'code': code})

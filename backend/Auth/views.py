@@ -11,7 +11,7 @@ class Signup(APIView):
     def post(self, request):
         data = request.data
         serializer = SignupSerializer(data=data)
-
+        print(serializer.is_valid())
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -24,7 +24,7 @@ class Signup(APIView):
         # create user
         user = User(
             email=data["email"],
-            role=data["role"]
+            role="teacher"
         )
         user.set_password(data["password"])
         user.save()

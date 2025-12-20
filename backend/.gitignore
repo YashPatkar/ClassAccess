@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+uv.lock
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Django migrations (keep __init__.py)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Environment variables
+.env
+.env.*
+
+# Tests / coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

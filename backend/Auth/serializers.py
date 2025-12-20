@@ -6,11 +6,10 @@ User = get_user_model()
 class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=6)
-    role = serializers.ChoiceField(choices=[
-        ("admin", "admin"),
-        ("teacher", "teacher"),
-        ("student", "student"),
-    ])
+    role = serializers.ChoiceField(
+        choices=[('admin', 'admin'), ('teacher', 'teacher'), ('student', 'student')],
+        default='teacher'
+    )
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():

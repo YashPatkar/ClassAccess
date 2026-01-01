@@ -5,6 +5,7 @@ from django.utils import timezone
 class FileStoreSerializer(serializers.ModelSerializer):
     file_path = serializers.FileField(write_only=True)
     code = serializers.CharField(read_only=True)
+
     class Meta:
         model = PDFSession
         fields = ["file_path", "expires_at", "code"]
@@ -15,3 +16,16 @@ class FileStoreSerializer(serializers.ModelSerializer):
                 "Expiry time must be in the future"
             )
         return value
+
+
+class PDFSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PDFSession
+        fields = [
+            "id",
+            "code",
+            "original_file_name",
+            "expires_at",
+            "is_expired",
+            "created_at",
+        ]

@@ -23,7 +23,7 @@ class StudentAccessView(GenericAPIView):
         if cached:
             if cached["expires_at"] <= now_ts:
                 return Response({"error": "Session expired"}, status=400)
-            return Response({"url": cached["signed_url"]})
+            return Response({"url": cached["signed_url"], "code": code})
 
         session = PDFSession.objects.filter(code=code).first()
         if not session:
@@ -49,4 +49,4 @@ class StudentAccessView(GenericAPIView):
 
         set_pdf_session(code, data)
 
-        return Response({"url": signed["signedURL"]})
+        return Response({"url": signed["signedURL"], "code": code})

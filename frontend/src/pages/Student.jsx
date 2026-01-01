@@ -7,7 +7,7 @@ function Student() {
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -18,6 +18,8 @@ function Student() {
       // store signed URL temporarily
       sessionStorage.setItem('pdf_url', res.url)
 
+      sessionStorage.setItem('pdf_code', code)
+      
       navigate('/student/view')
     } catch (err) {
       setError(err.message)

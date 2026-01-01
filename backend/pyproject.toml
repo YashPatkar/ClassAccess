@@ -5,9 +5,16 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "celery>=5.6.0",
     "django>=5.2.9",
+    "django-celery-beat>=2.8.1",
+    "django-cors-headers>=4.9.0",
+    "django-crontab>=0.7.1",
     "djangorestframework>=3.16.1",
     "djangorestframework-simplejwt>=5.5.1",
+    "groq>=1.0.0",
+    "pdfplumber>=0.11.8",
     "python-dotenv>=1.2.1",
+    "redis>=7.1.0",
     "supabase>=2.27.0",
 ]

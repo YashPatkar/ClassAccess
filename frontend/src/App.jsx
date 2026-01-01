@@ -6,6 +6,8 @@ import Teacher from './pages/Teacher'
 import Student from './pages/Student'
 import PdfViewer from './pages/PdfViewer'
 import ProtectedRoute from './components/ProtectedRoute'
+import TeacherDashboard from './pages/TeacherDashboard'
+
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
         <Route path="/student/view" element={<PdfViewer />} />
 
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
       </Routes>
     </Router>
   )

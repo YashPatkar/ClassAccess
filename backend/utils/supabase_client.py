@@ -20,3 +20,21 @@ def upload_pdf_to_supabase(file_obj, code):
             {"error": str(e)},
             status=400
         )
+
+def delete_pdf_from_supabase(file_path: str):
+    """
+    file_path example:
+    sessions/af8c714f-f26b-4c5c-a121-90c73a5eed47.pdf
+    """
+    res = supabase.storage.from_(settings.SUPABASE_BUCKET).remove([file_path])
+
+def get_signed_url(file_path: str, expires_in: int = 3600) -> str:
+    """
+    file_path example:
+    sessions/af8c714f-f26b-4c5c-a121-90c73a5eed47.pdf
+    """
+    res = supabase.storage.from_(settings.SUPABASE_BUCKET).create_signed_url(
+        file_path,
+        expires_in
+    )
+    return res["signedURL"]

@@ -21,6 +21,7 @@ const api = {
     const response = await fetch(url, config);
     const data = await response.json();
 
+    
     if (!response.ok) {
       throw new Error(data.error || 'Request failed');
     }
@@ -65,6 +66,30 @@ const api = {
       body: { code },
     });
   },
+};
+
+api.getTeacherPDFs = function () {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('Not authenticated');
+
+  return this.request('/teacher/pdf-sessions/', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+api.deleteTeacherPDF = function (id) {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('Not authenticated');
+
+  return this.request(`/teacher/pdf-sessions/${id}/`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export default api;

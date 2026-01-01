@@ -29,6 +29,7 @@ staticfiles/
 # Environment variables
 .env
 .env.*
+backend/.env
 
 # Tests / coverage
 .coverage

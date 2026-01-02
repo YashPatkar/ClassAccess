@@ -47,7 +47,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-
+print("CORS_ALLOWED_ORIGINS:", CORS_ALLOWED_ORIGINS)
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
@@ -152,8 +152,9 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "1000/day",
-        "ai_summary": "5/min",
+        "anon": "1000/day", # srudents pdf access
+        "ai_summary": "5/min", # ai summary
+        "auth": "5/min", # signup + login
     },
 }
 

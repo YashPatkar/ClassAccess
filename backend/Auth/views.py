@@ -5,9 +5,21 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from django.contrib.auth import authenticate
+from rest_framework.permissions import AllowAny
+from rest_framework.throttling import SimpleRateThrottle
 
 User = get_user_model()
+
+class AuthRateThrottle(SimpleRateThrottle):
+    '''Rate limit for signup and login api'''
+    scope = "auth"
+
+    def get_cache_key(self, request, view):
+        return self.get_ident(request)
+    
 class Signup(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [AuthRateThrottle]
     def post(self, request):
         data = request.data
         serializer = SignupSerializer(data=data)
@@ -46,6 +58,9 @@ class Signup(APIView):
         )
     
 class Login(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [AuthRateThrottle]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

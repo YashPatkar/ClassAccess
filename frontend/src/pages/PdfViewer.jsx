@@ -5,6 +5,8 @@ import pdfWorker from "pdfjs-dist/build/pdf.worker.min?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function PdfViewer() {
   const canvasRef = useRef(null);
 
@@ -65,7 +67,7 @@ function PdfViewer() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/ai/summary/${code}`
+        `${API_BASE_URL}/ai/summary/${code}`
       );
       const data = await res.json();
 

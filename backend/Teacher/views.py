@@ -19,7 +19,7 @@ class FileStore(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         code = str(random.randint(100000, 999999))
-        print(code)
+
         file_path = self.request.FILES["file_path"]
         
         path = upload_pdf_to_supabase(file_path, code)
@@ -42,7 +42,6 @@ class TeacherPDFSessionViewSet(
     serializer_class = PDFSessionSerializer
 
     def get_queryset(self):
-        print("VIEWSET HIT", self.request.user)
         return (
             PDFSession.objects
             .filter(teacher=self.request.user)
@@ -51,7 +50,6 @@ class TeacherPDFSessionViewSet(
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        print(instance, "jasdjasdjasjd")
         delete_pdf_from_supabase(instance.file_path)
 
         instance.is_expired = True

@@ -50,15 +50,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
-# print("CORS_ALLOWED_ORIGINS:", CORS_ALLOWED_ORIGINS)
-# CORS_ALLOW_CREDENTIALS = True
-
-# CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
-
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app"]
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
 from corsheaders.defaults import default_headers
 
@@ -187,6 +181,9 @@ CELERY_TASK_SERIALIZER = "json"
 
 CELERY_TIMEZONE = "Asia/Kolkata"
 CELERY_ENABLE_UTC = False
+
+# celery only runs in local, not in prod.
+CELERY_ENABLED = os.getenv("CELERY_ENABLED", "false") == "true"
 
 GROQ_API_KEY=os.getenv('GROQ_API_KEY')
 

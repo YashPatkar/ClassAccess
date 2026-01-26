@@ -1,64 +1,50 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from rest_framework.throttling import AnonRateThrottle
-from django.http import JsonResponse
-import json
+from rest_framework.response import Response
+from rest_framework import status
 
 from Teacher.models import PDFSession
-from utils.redis_client import redis_client
-from .ai_service import generate_summary_for_pdf
-from rest_framework.throttling import SimpleRateThrottle
+from .rag.qa_engine import answer_question
+from rest_framework.permissions import AllowAny
 
-class AIOnMissThrottle(AnonRateThrottle):
-    scope = "ai_summary"
+from rest_framework.throttling import AnonRateThrottle
 
-    def allow_request(self, request, view):
-        code = view.kwargs.get("code")
-        if not code:
-            return True
+class AIQuestionRateThrottle(AnonRateThrottle):
+    scope = "ai_question"
 
-        cache_key = f"ai:summary:{code}"
-
-        # If AI result is already cached → do NOT throttle
-        if redis_client.exists(cache_key):
-            return True
-
-        # Otherwise apply normal anon throttling
-        return super().allow_request(request, view)
-
-
-class AISummaryView(APIView):
+class AskPDFQuestionView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
-    throttle_classes = [AIOnMissThrottle]
+    throttle_classes = [AIQuestionRateThrottle]
 
-    def get(self, request, code):
-        cache_key = f"ai:summary:{code}"
+    def post(self, request):
+        code = request.data.get("code")
+        question = request.data.get("question")
 
-        # 1️⃣ Cache check (fast path)
-        cached = redis_client.get(cache_key)
-        if cached:
-            return JsonResponse({
-                "status": "completed",
-                **json.loads(cached)
-            })
+        if not code or not question:
+            return Response(
+                {"error": "code and question are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # 2️⃣ Validate code
         try:
-            pdf = PDFSession.objects.get(code=code)
+            pdf_session = PDFSession.objects.get(
+                code=code,
+                is_expired=False
+            )
         except PDFSession.DoesNotExist:
-            return JsonResponse({"error": "Invalid code"}, status=404)
+            return Response(
+                {"error": "Invalid or expired session code"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        # 3️⃣ Generate AI (SYNC, throttled by DRF)
-        result = generate_summary_for_pdf(pdf)
-
-        # 4️⃣ Cache result
-        redis_client.setex(
-            cache_key,
-            3600,  # 1 hour
-            json.dumps(result)
+        answer = answer_question(
+            pdf_id=pdf_session.id,
+            question=question
         )
 
-        return JsonResponse({
-            "status": "completed",
-            **result
-        })
+        print(answer)
+
+        return Response(
+            {"answer": answer},
+            status=status.HTTP_200_OK
+        )

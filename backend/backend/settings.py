@@ -156,8 +156,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "1000/day", # srudents pdf access
-        "ai_summary": "5/min", # ai summary
+        "anon": "1000/day", # students pdf access
+        "ai_question": "10/min", # AI QnA calls
         "auth": "5/min", # signup + login
     },
 }

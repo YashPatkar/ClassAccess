@@ -1,7 +1,7 @@
 # AI/urls.py
 from django.urls import path
-from .views import AISummaryView
+from .views import AskPDFQuestionView
 
 urlpatterns = [
-    path("summary/<str:code>/", AISummaryView.as_view()),
+    path("ask/", AskPDFQuestionView.as_view()),
 ]

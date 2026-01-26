@@ -12,6 +12,9 @@ from rest_framework.response import Response
 
 
 class FileStore(generics.CreateAPIView):
+    '''
+        File upload by teacher
+    '''
     serializer_class = FileStoreSerializer
     queryset = PDFSession.objects.all()
     permission_classes = [IsAuthenticated, IsTeacher]
@@ -20,15 +23,15 @@ class FileStore(generics.CreateAPIView):
     def perform_create(self, serializer):
         code = str(random.randint(100000, 999999))
 
-        file_path = self.request.FILES["file_path"]
-        
-        path = upload_pdf_to_supabase(file_path, code)
+        file = serializer.validated_data["file_path"]
+
+        path = upload_pdf_to_supabase(file, code)
 
         serializer.save(
             teacher=self.request.user,
             code=code,
             file_path=path,
-            original_file_name=file_path.name
+            original_file_name=file.name
         )
 
 class TeacherPDFSessionViewSet(
@@ -37,6 +40,9 @@ class TeacherPDFSessionViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet
 ):
+    '''
+        Dashboard viewset for teachers
+    '''
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsTeacher]
     serializer_class = PDFSessionSerializer

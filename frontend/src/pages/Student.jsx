@@ -1,7 +1,7 @@
 // src/pages/Student.jsx
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../services/api';
+import { accessPDF } from '../services/api';
 
 function Student() {
   const [code, setCode] = useState('')
@@ -13,7 +13,7 @@ function Student() {
     setError('')
 
     try {
-      const res = await api.accessPDF(code)
+      const res = await accessPDF(code)
 
       // store signed URL temporarily
       sessionStorage.setItem('pdf_url', res.url)

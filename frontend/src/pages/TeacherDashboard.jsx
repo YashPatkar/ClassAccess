@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../services/api';
+import { getTeacherPDFs, deleteTeacherPDF } from '../services/api';
 
 function TeacherDashboard() {
     const [pdfs, setPdfs] = useState([]);
@@ -7,7 +7,7 @@ function TeacherDashboard() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        api.getTeacherPDFs()
+        getTeacherPDFs()
         .then(setPdfs)
         .catch(() => setError('Failed to load PDFs'))
         .finally(() => setLoading(false));
@@ -17,7 +17,7 @@ function TeacherDashboard() {
         if (!window.confirm('Delete this PDF from storage?')) return;
 
         try {
-        await api.deleteTeacherPDF(id);
+        await deleteTeacherPDF(id);
         setPdfs((prev) => prev.filter((p) => p.id !== id));
         } catch {
         alert('Delete failed');

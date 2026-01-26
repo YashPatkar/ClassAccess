@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { signup } from '../services/api';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      await api.signup(email, password);
+      await signup(email, password);
       navigate('/login');
     } catch (err) {
       setError(err.message);

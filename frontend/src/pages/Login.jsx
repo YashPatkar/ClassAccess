@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { login } from '../services/api';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -15,7 +15,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await api.login(email, password);
+      const response = await login(email, password);
       localStorage.setItem('token', response.access);
       navigate('/teacher');
     } catch (err) {

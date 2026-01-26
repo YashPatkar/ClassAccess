@@ -7,13 +7,11 @@
         "**/Thumbs.db": true,
         "backend/uv.lock": true,
         "backend/pyproject.toml": true,
-        "backend/.venv": true,
         "backend/.python-version": true
     },
     "hide-files.files": [
         "backend/uv.lock",
         "backend/pyproject.toml",
-        "backend/.venv",
         "backend/.python-version"
     ]
 }

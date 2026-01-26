@@ -1,95 +1,103 @@
+import axios from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const api = {
-  async request(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
-    const isFormData = options.body instanceof FormData;
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-    const config = {
-      method: options.method || 'GET',
-      headers: {
-        ...(!isFormData && { 'Content-Type': 'application/json' }),
-        ...options.headers,
-      },
-      body: options.body
-        ? isFormData
-          ? options.body
-          : JSON.stringify(options.body)
-        : undefined,
-    };
+const TEACHER_PATHS = ["/teacher"];
+let authRedirected = false;
 
-    const response = await fetch(url, config);
-    const data = await response.json();
+/* -----------------------------
+   Central auth failure handler
+----------------------------- */
+function handleAuthFailure() {
+  if (authRedirected) return;
 
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+  authRedirected = true;
+  alert("Session expired. Please login again.");
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+}
+
+/* -----------------------------
+   Request Interceptor
+----------------------------- */
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  const isTeacherRequest = TEACHER_PATHS.some((path) =>
+    config.url?.startsWith(path)
+  );
+
+  if (isTeacherRequest && !token) {
+    handleAuthFailure();
+    throw new axios.Cancel("Missing auth token");
+  }
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+/* -----------------------------
+   Response Interceptor
+----------------------------- */
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
     }
 
-    return data;
-  },
+    if (error.response?.status === 401) {
+      handleAuthFailure();
+    }
 
-  signup(email, password) {
-    return this.request('/auth/signup/', {
-      method: 'POST',
-      body: { email, password },
-    });
-  },
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.detail ||
+      "Request failed";
 
-  login(email, password) {
-    return this.request('/auth/login/', {
-      method: 'POST',
-      body: { email, password },
-    });
-  },
+    return Promise.reject(new Error(message));
+  }
+);
 
-  uploadPDF(file, expiresAt) {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('Not authenticated');
+/* -----------------------------
+   API Methods
+----------------------------- */
 
-    const formData = new FormData();
-    formData.append('file_path', file);
-    formData.append('expires_at', expiresAt);
+export const signup = (email, password) =>
+  api.post("/auth/signup/", { email, password });
 
-    return this.request('/teacher/upload/', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-  },
+export const login = (email, password) =>
+  api.post("/auth/login/", { email, password });
 
-  accessPDF(code) {
-    return this.request('/student/access/', {
-      method: 'POST',
-      body: { code },
-    });
-  },
-};
+export const uploadPDF = (file, expiresAt) => {
+  const formData = new FormData();
+  formData.append("file_path", file);
+  formData.append("expires_at", expiresAt);
 
-api.getTeacherPDFs = function () {
-  const token = localStorage.getItem('token');
-  if (!token) throw new Error('Not authenticated');
-
-  return this.request('/teacher/pdf-sessions/', {
-    method: 'GET',
+  return api.post("/teacher/upload/", formData, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
     },
   });
 };
 
-api.deleteTeacherPDF = function (id) {
-  const token = localStorage.getItem('token');
-  if (!token) throw new Error('Not authenticated');
+export const accessPDF = (code) =>
+  api.post("/student/access/", { code });
 
-  return this.request(`/teacher/pdf-sessions/${id}/`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+export const getTeacherPDFs = () =>
+  api.get("/teacher/pdf-sessions/");
+
+export const deleteTeacherPDF = (id) =>
+  api.delete(`/teacher/pdf-sessions/${id}/`);
 
 export default api;

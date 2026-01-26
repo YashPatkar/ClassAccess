@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../services/api';
+import { uploadPDF } from '../services/api';
 
 function Teacher() {
   const [file, setFile] = useState(null);
@@ -37,7 +37,7 @@ function Teacher() {
     setLoading(true);
 
     try {
-      const response = await api.uploadPDF(file, expiresAt);
+      const response = await uploadPDF(file, expiresAt);
       setCode(response.code);
       setFile(null);
       setExpiresAt('');

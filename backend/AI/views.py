@@ -1,15 +1,19 @@
+import asyncio
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.throttling import AnonRateThrottle
 
 from Teacher.models import PDFSession
-from .rag.qa_engine import answer_question
-from rest_framework.permissions import AllowAny
+from AI.rag_utils.embeddings import bulk_text_to_embeddings
+from AI.rag_utils.llm_client import generate_answer
+from AI.rag_utils.vector_store import search_similar_embeddings  # later
 
-from rest_framework.throttling import AnonRateThrottle
 
 class AIQuestionRateThrottle(AnonRateThrottle):
     scope = "ai_question"
+
 
 class AskPDFQuestionView(APIView):
     authentication_classes = []
@@ -23,28 +27,48 @@ class AskPDFQuestionView(APIView):
         if not code or not question:
             return Response(
                 {"error": "code and question are required"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             pdf_session = PDFSession.objects.get(
                 code=code,
-                is_expired=False
+                is_expired=False,
             )
         except PDFSession.DoesNotExist:
             return Response(
                 {"error": "Invalid or expired session code"},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
-        answer = answer_question(
-            pdf_id=pdf_session.id,
-            question=question
-        )
+        async def _run():
+            # 1. Embed question
+            question_embedding = (
+                await bulk_text_to_embeddings([question])
+            )[0]
 
-        print(answer)
+            # 2. Retrieve relevant chunks (placeholder)
+            results = await search_similar_embeddings(
+                pdf_id=pdf_session.id,
+                query_embedding=question_embedding,
+                top_k=4,
+            )
+
+            # TEMP: until vector store is added
+            context_text = "\n\n".join(
+                f"(Page {item['page_number']}) {item['chunk_text']}"
+                for item in results
+            )
+            
+            # 3. Generate answer
+            return await generate_answer(
+                context=context_text,
+                question=question,
+            )
+
+        answer = asyncio.run(_run())
 
         return Response(
             {"answer": answer},
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )

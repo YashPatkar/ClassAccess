@@ -1,19 +1,20 @@
 import io
-import requests
+import httpx
 import pdfplumber
 
 from utils.supabase_client import get_signed_url
 
 
-def extract_text_by_page(file_path: str) -> list[dict]:
+async def extract_text_from_pdf(file_path: str) -> list[dict]:
     """
     Extract text page-by-page from a PDF stored in Supabase.
     """
 
     signed_url = get_signed_url(file_path)
 
-    response = requests.get(signed_url, timeout=30)
-    response.raise_for_status()
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(signed_url)
+        response.raise_for_status()
 
     pages = []
 

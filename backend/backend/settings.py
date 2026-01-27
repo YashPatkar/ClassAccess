@@ -187,10 +187,14 @@ CELERY_ENABLE_UTC = False
 # celery only runs in local, not in prod.
 CELERY_ENABLED = os.getenv("CELERY_ENABLED", "false") == "true"
 
-GROQ_API_KEY=os.getenv('GROQ_API_KEY')
-
 SESSION_COOKIE_AGE = 60 * 60  # 1 hour
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 REDIS_URL = os.getenv("REDIS_URL")
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+GROQ_QA_MODEL = os.getenv(
+    "GROQ_QA_MODEL"
+)

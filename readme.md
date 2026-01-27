@@ -2,7 +2,7 @@
 
 ClassAccess is a lightweight backend system that allows teachers to upload PDFs and share temporary access with students using a secure session code.
 
-The goal is to enable simple, time-bound PDF access without public file exposure or complex streaming logic.
+The system is designed to be secure, memory-efficient, and easy to reason about.
 
 ---
 
@@ -20,6 +20,12 @@ The goal is to enable simple, time-bound PDF access without public file exposure
 - No authentication required for students
 - Files are never publicly exposed
 
+### AI / RAG (Experimental)
+- PDF text is chunked and indexed at upload time
+- Lightweight TF-IDF embeddings used for retrieval
+- No heavy ML libraries or paid APIs
+- Designed to work within low-memory environments
+
 ---
 
 ## Tech Stack
@@ -27,7 +33,8 @@ The goal is to enable simple, time-bound PDF access without public file exposure
 - Django + Django REST Framework
 - SimpleJWT for authentication
 - Supabase Storage (private buckets)
-- PostgreSQL (sessions metadata)
+- PostgreSQL + pgvector
+- scikit-learn (TF-IDF embeddings)
 - Postman for API testing
 
 ---
@@ -47,21 +54,22 @@ This repository currently contains:
 - Authenticated teacher upload flow
 - Supabase storage integration
 - Session creation with expiry
+- Lightweight RAG indexing pipeline
 
 Upcoming:
 - Student access endpoint
 - Signed URL generation
 - Auto cleanup of expired sessions
-- Optional AI-based PDF summary
+- Improved retrieval quality
 
 ---
 
 ## Why this project?
 
-This project focuses on **practical backend architecture**:
-- Proper access control
-- Secure file handling
-- Clean separation of responsibilities
-- Simple, explainable design
+This project focuses on **practical backend engineering**:
+- Secure access control
+- Memory-aware system design
+- Avoiding unnecessary abstractions
+- Clear trade-offs and incremental scaling
 
 Built intentionally without over-engineering.

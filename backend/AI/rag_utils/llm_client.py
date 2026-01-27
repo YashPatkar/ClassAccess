@@ -10,7 +10,6 @@ from django.conf import settings
 
 GROQ_API_KEY = settings.GROQ_API_KEY
 
-EMBEDDING_MODEL = settings.GROQ_EMBEDDING_MODEL
 QA_MODEL = settings.GROQ_QA_MODEL
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"

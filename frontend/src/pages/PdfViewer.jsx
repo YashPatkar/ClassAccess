@@ -6,6 +6,32 @@ import { askAI } from "../services/ai";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
+const MarkdownMessage = ({ content, isDarkMode }) => {
+  return (
+    <div
+      className={`
+        prose max-w-none text-sm leading-relaxed
+        ${isDarkMode
+          ? "prose-invert prose-p:text-gray-200 prose-strong:text-white prose-li:text-gray-200"
+          : "prose-gray prose-p:text-gray-800 prose-strong:text-gray-900"
+        }
+        prose-h1:text-xl prose-h2:text-lg prose-h3:text-base
+        prose-h1:font-semibold prose-h2:font-semibold
+        prose-ul:pl-5 prose-ol:pl-5
+        prose-code:px-1 prose-code:rounded
+        ${isDarkMode ? "prose-code:bg-gray-700" : "prose-code:bg-gray-200"}
+      `}
+    >
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+};
+
 // Worker configuration
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -129,7 +155,7 @@ const Toolbar = ({ pageNum, numPages, scale, setScale, setPage, onToggleAI, isAI
 
              {/* Center: Zoom Controls */}
              <div className="absolute left-1/2 transform -translate-x-1/2">
-                <div className={`flex items-center ${controlBg} rounded-full px-1 border border-transparent shadow-sm`}>
+                <div className={`flex items-center ${controlBg} rounded-full px-1 py-0.5 border border-transparent shadow-sm`}>
                     <button onClick={() => setScale(s => Math.max(0.5, s-0.1))} className={`w-8 h-8 flex items-center justify-center ${iconColor} ${controlHover} rounded-full text-lg`}>−</button>
                     <span className={`w-12 text-center text-sm font-medium ${textMain}`}>{Math.round(scale * 100)}%</span>
                     <button onClick={() => setScale(s => Math.min(3, s+0.1))} className={`w-8 h-8 flex items-center justify-center ${iconColor} ${controlHover} rounded-full text-lg`}>+</button>
@@ -158,7 +184,6 @@ const Toolbar = ({ pageNum, numPages, scale, setScale, setPage, onToggleAI, isAI
                         }
                     `}
                 >
-                    <Icons.GeminiLogo className={isAIActive ? "w-5 h-5 text-[#001d35]" : "w-5 h-5 text-[#1a73e8]"} />
                     Ask AI
                 </button>
              </div>
@@ -185,9 +210,9 @@ const ChatMessage = ({ role, content, isDarkMode }) => {
                         <Icons.GeminiLogo className="w-5 h-5 text-[#1a73e8]" />
                     </div>
                 )}
-                <div className={`text-sm leading-relaxed ${isAi ? aiText : `${userBg} ${userText} px-4 py-3 rounded-2xl rounded-tr-sm`}`}>
-                     {content}
-                </div>
+                <div className={aiText}>
+  <MarkdownMessage content={content} isDarkMode={isDarkMode} />
+</div>
             </div>
         </div>
     );
@@ -274,7 +299,7 @@ const EmptyState = ({ onSuggestionClick, isDarkMode }) => {
 };
 
 const GeminiSidebar = ({ 
-    messages, input, setInput, handleSend, loading, onClose, messagesEndRef, isDarkMode 
+    messages, width, input, setInput, handleSend, loading, onClose, messagesEndRef, isDarkMode 
 }) => {
     // Theme classes
     const bg = isDarkMode ? "bg-[#1e1e1e]" : "bg-white";
@@ -283,7 +308,7 @@ const GeminiSidebar = ({
     const closeHover = isDarkMode ? "hover:bg-[#3c4043] text-gray-300" : "hover:bg-gray-100 text-gray-600";
 
     return (
-        <div className={`w-[400px] ${bg} flex flex-col border-l ${border} h-full shadow-xl relative z-20 transition-colors duration-300`}>
+        <div style={{ width }} className={`${bg} flex flex-col border-l ${border} h-full shadow-xl relative z-20 transition-colors duration-300`}>
             {/* Sidebar Header */}
             <div className={`flex items-center justify-between px-5 py-4 border-b ${isDarkMode ? 'border-[#3c4043]' : 'border-gray-100'}`}>
                 <div className="flex items-center gap-2">
@@ -353,6 +378,8 @@ function PdfViewer() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiWidth, setAiWidth] = useState(400);
+  const isResizing = useRef(false);
 
   // Load Session Data
   useEffect(() => {
@@ -363,6 +390,30 @@ function PdfViewer() {
         setCode(storedCode);
     }
   }, [navigate]);
+
+
+  useEffect(() => {
+  const handleMouseMove = (e) => {
+    if (!isResizing.current) return;
+
+    const newWidth = window.innerWidth - e.clientX;
+    if (newWidth < 300 || newWidth > 700) return;
+
+    setAiWidth(newWidth);
+  };
+
+  const handleMouseUp = () => {
+    isResizing.current = false;
+  };
+
+  window.addEventListener("mousemove", handleMouseMove);
+  window.addEventListener("mouseup", handleMouseUp);
+
+  return () => {
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
+  };
+}, []);
 
   // Scroll to bottom
   useEffect(() => {
@@ -439,17 +490,26 @@ function PdfViewer() {
 
             {/* Right: Gemini Sidebar */}
             {showAI && (
-                <GeminiSidebar 
-                    messages={messages}
-                    input={input}
-                    setInput={setInput}
-                    handleSend={handleSend}
-                    loading={loading}
-                    onClose={() => setShowAI(false)}
-                    messagesEndRef={messagesEndRef}
-                    isDarkMode={isDarkMode}
-                />
-            )}
+  <div
+    className="w-1 cursor-col-resize bg-transparent hover:bg-blue-400/40 transition-colors"
+    onMouseDown={() => {
+      isResizing.current = true;
+    }}
+  />
+)}
+{showAI && (
+  <GeminiSidebar
+    width={aiWidth}
+    messages={messages}
+    input={input}
+    setInput={setInput}
+    handleSend={handleSend}
+    loading={loading}
+    onClose={() => setShowAI(false)}
+    messagesEndRef={messagesEndRef}
+    isDarkMode={isDarkMode}
+  />
+)}
         </div>
     </div>
   );

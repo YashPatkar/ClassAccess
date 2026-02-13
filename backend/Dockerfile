@@ -8,7 +8,11 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --system
+
+# Install exactly what is in uv.lock globally
+RUN uv export --frozen --no-dev > requirements.txt \
+    && uv pip install --system -r requirements.txt \
+    && rm requirements.txt
 
 COPY . .
 

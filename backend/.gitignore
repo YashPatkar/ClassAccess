@@ -13,7 +13,6 @@ env/
 
 # uv
 .uv/
-uv.lock
 
 # Django
 *.log

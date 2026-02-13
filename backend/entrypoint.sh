@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-
+echo "DATABASE_URL=$DATABASE_URL"
 echo "Running migrations..."
 python manage.py migrate
 

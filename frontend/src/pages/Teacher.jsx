@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { uploadPDF } from '../services/api';
 
 function Teacher() {
@@ -7,6 +8,8 @@ function Teacher() {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -49,15 +52,51 @@ function Teacher() {
     }
   };
 
+  const handleCopyCode = async () => {
+    if (!code) return;
+
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setError('Failed to copy code. Please try manually.');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    navigate('/login');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Upload PDF</h1>
+    <div className="theme-page">
+      <div className="theme-container max-w-2xl">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+          <h1 className="theme-title text-xl sm:text-2xl font-semibold text-[var(--ink)]">Upload PDF</h1>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => navigate('/teacher/dashboard')}
+              className="theme-button-ghost px-3 sm:px-4 py-2 text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              Dashboard
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="theme-button-ghost px-3 sm:px-4 py-2 text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-8">
+        <div className="theme-card p-4 sm:p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="file" className="block text-xs sm:text-sm theme-label mb-2">
                 PDF File
               </label>
               <input
@@ -66,12 +105,12 @@ function Teacher() {
                 accept=".pdf"
                 onChange={handleFileChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full theme-input text-xs sm:text-base"
               />
             </div>
 
             <div>
-              <label htmlFor="expiresAt" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="expiresAt" className="block text-xs sm:text-sm theme-label mb-2">
                 Expiry Date & Time
               </label>
               <input
@@ -80,27 +119,37 @@ function Teacher() {
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full theme-input text-xs sm:text-base"
               />
             </div>
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                {error}
+              <div className="text-xs sm:text-sm theme-alert-error">
+                <span aria-hidden="true">⚠</span>
+                <span>{error}</span>
               </div>
             )}
 
             {code && (
-              <div className="text-sm text-green-700 bg-green-50 p-4 rounded">
-                <p className="font-medium mb-1">Session code generated:</p>
-                <p className="font-mono text-lg">{code}</p>
+              <div className="text-xs sm:text-sm theme-alert-success">
+                <p className="font-medium mb-3">Session code generated:</p>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-3">
+                  <p className="font-mono text-base sm:text-lg break-all">{code}</p>
+                  <button
+                    type="button"
+                    onClick={handleCopyCode}
+                    className="theme-button-ghost px-3 sm:px-4 py-2 text-xs sm:text-sm w-full sm:w-auto"
+                  >
+                    {copied ? '✓ Copied' : 'Copy code'}
+                  </button>
+                </div>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full theme-button-primary disabled:opacity-50 text-sm sm:text-base py-2 sm:py-3"
             >
               {loading ? 'Uploading...' : 'Upload'}
             </button>

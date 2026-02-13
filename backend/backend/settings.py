@@ -158,6 +158,7 @@ REST_FRAMEWORK = {
         "ai_question": "10/min", # AI QnA calls
         "auth": "5/min", # signup + login
     },
+    "DEFAULT_EXCEPTION_HANDLER": "backend.exception_handler.custom_exception_handler",
 }
 
 from datetime import timedelta
@@ -174,8 +175,56 @@ SUPABASE_URL=os.getenv('SUPABASE_URL')
 SUPABASE_SERVICE_ROLE_KEY=os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 SUPABASE_BUCKET=os.getenv('SUPABASE_BUCKET')
 
-CELERY_BROKER_URL = os.getenv("REDIS_URL")
-CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
+# ============================================================================
+# CACHE CONFIGURATION — Redis with Fallback to LocMemCache
+# ============================================================================
+# If REDIS_URL is not provided or Redis is unavailable, automatically fallback
+# to Django's built-in LocMemCache (local memory cache).
+# This ensures the application works without Redis while preserving throttling
+# and caching functionality.
+
+REDIS_URL = os.getenv("REDIS_URL")
+
+if REDIS_URL:
+    # Try to use Redis cache
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {
+                    "max_connections": 50,
+                    "retry_on_timeout": True,
+                },
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+                "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            }
+        }
+    }
+else:
+    # Fallback to Django's built-in LocMemCache (in-memory)
+    # This is suitable for single-server deployments without Redis
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+            "OPTIONS": {
+                "MAX_ENTRIES": 10000,
+            }
+        }
+    }
+
+# ============================================================================
+# CELERY CONFIGURATION — Works with or Without Redis
+# ============================================================================
+# Celery is only enabled if CELERY_ENABLED=true in .env
+# If Redis is unavailable, Celery will not start (background tasks disabled),
+# but the main Django application continues to work.
+
+CELERY_BROKER_URL = REDIS_URL if REDIS_URL else None
+CELERY_RESULT_BACKEND = REDIS_URL if REDIS_URL else None
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
@@ -189,13 +238,37 @@ SESSION_COOKIE_AGE = 60 * 60  # 1 hour
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-REDIS_URL = os.getenv("REDIS_URL")
-
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 GROQ_QA_MODEL = os.getenv(
     "GROQ_QA_MODEL"
 )
+
+# ============================================================================
+# LOGGING CONFIGURATION
+# ============================================================================
+# Simple console logging for development - errors are returned to frontend via API
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
 
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True

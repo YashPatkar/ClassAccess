@@ -20,39 +20,47 @@ function Student() {
 
       sessionStorage.setItem('pdf_code', code)
       
-      navigate('/student/view')
+      navigate('/access/view')
     } catch (err) {
       setError(err.message)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="theme-page flex items-center justify-center py-8 sm:py-12">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-6 rounded-lg shadow"
+        className="w-full max-w-md px-4 sm:px-6 md:px-8 theme-card p-4 sm:p-6 md:p-8"
       >
-        <h1 className="text-xl font-semibold mb-4">View PDF</h1>
+        <h1 className="theme-title text-lg sm:text-xl md:text-2xl font-semibold mb-3 sm:mb-4">View PDF</h1>
 
-        <label className="block text-sm mb-1">Session Code</label>
+        <label className="block text-xs sm:text-sm theme-label mb-2">Session Code</label>
         <input
           type="text"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="w-full border px-3 py-2 rounded mb-4"
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder="Enter 6-digit code"
+          className="w-full theme-input mb-4 text-sm sm:text-base"
           required
         />
 
         {error && (
-          <div className="text-red-600 text-sm mb-3">{error}</div>
+          <div className="text-xs sm:text-sm theme-alert-error mb-4">
+            <span aria-hidden="true">⚠</span>
+            <span>{error}</span>
+          </div>
         )}
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded"
+          className="w-full theme-button-primary text-sm sm:text-base py-2 sm:py-3"
         >
           View PDF
         </button>
+
+        <p className="text-xs sm:text-sm text-[var(--ink-muted)] mt-4 text-center">
+          Don't have a code? <a href="/" className="text-[var(--accent)] hover:underline font-medium">Go back home</a>
+        </p>
       </form>
     </div>
   )

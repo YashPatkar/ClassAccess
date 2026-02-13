@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
 
@@ -9,6 +9,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/teacher/upload', { replace: true });
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -17,7 +24,8 @@ function Login() {
     try {
       const response = await login(email, password);
       localStorage.setItem('token', response.access);
-      navigate('/teacher');
+      localStorage.setItem('refresh_token', response.refresh);
+      navigate('/teacher/upload');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -26,13 +34,13 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-sm">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">Login</h1>
+    <div className="theme-page flex items-center justify-center py-8 sm:py-12">
+      <div className="w-full max-w-md px-4 sm:px-6 md:px-8 theme-card p-4 sm:p-6 md:p-8">
+        <h1 className="theme-title text-lg sm:text-xl md:text-2xl font-semibold mb-4 md:mb-6 text-[var(--ink)]">Login</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-xs sm:text-sm theme-label mb-2">
               Email
             </label>
             <input
@@ -41,12 +49,13 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full theme-input text-sm sm:text-base"
+              placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-xs sm:text-sm theme-label mb-2">
               Password
             </label>
             <input
@@ -55,28 +64,30 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full theme-input text-sm sm:text-base"
+              placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-              {error}
+            <div className="text-xs sm:text-sm theme-alert-error">
+              <span aria-hidden="true">⚠</span>
+              <span>{error}</span>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full theme-button-primary text-sm sm:text-base py-2 sm:py-3 disabled:opacity-50"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-600 text-center">
+        <p className="mt-4 md:mt-6 text-xs sm:text-sm text-[var(--ink-muted)] text-center">
           Don't have an account?{' '}
-          <a href="/signup" className="text-blue-600 hover:underline">
+          <a href="/signup" className="text-[var(--accent)] hover:underline font-medium">
             Sign Up
           </a>
         </p>

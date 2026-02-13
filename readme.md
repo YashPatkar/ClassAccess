@@ -1,75 +1,30 @@
-# ClassAccess (PDF Session Viewer)
+# ClassAccess
 
-ClassAccess is a lightweight backend system that allows teachers to upload PDFs and share temporary access with students using a secure session code.
+ClassAccess is a secure PDF sharing platform that lets teachers upload documents and share temporary access with students using session codes.
 
-The system is designed to be secure, memory-efficient, and easy to reason about.
+## Features
 
----
+- JWT-based teacher authentication (SimpleJWT)
+- PDF upload with session codes and expiry windows
+- Private Supabase Storage with signed URL access
+- Student access by code without login
+- Teacher dashboard for managing uploads
+- Optional Redis and Celery, with safe fallbacks
+- Lightweight RAG pipeline (optional)
+- Responsive React UI
 
-## Current Features
+## First Setup (Main Folder)
 
-### Teacher Flow
-- Teacher authentication using JWT (SimpleJWT)
-- Secure PDF upload via authenticated API
-- Files stored privately in Supabase Storage
-- Each upload creates a unique session with expiry time
+1) Backend setup:
+	- `pip install -r backend/requirements.txt`
+	- Create `backend/.env` with required values (see developer.md)
+	- `python backend/manage.py migrate`
+	- `python backend/manage.py runserver`
 
-### Student Flow
-- Students access PDFs using a session code
-- Backend generates a time-limited signed URL
-- No authentication required for students
-- Files are never publicly exposed
+2) Frontend setup:
+	- `cd frontend`
+	- `npm install`
+	- Create `frontend/.env` with `VITE_API_BASE_URL=http://localhost:8000`
+	- `npm run dev`
 
-### AI / RAG (Experimental)
-- PDF text is chunked and indexed at upload time
-- Lightweight TF-IDF embeddings used for retrieval
-- No heavy ML libraries or paid APIs
-- Designed to work within low-memory environments
-
----
-
-## Tech Stack
-
-- Django + Django REST Framework
-- SimpleJWT for authentication
-- Supabase Storage (private buckets)
-- PostgreSQL + pgvector
-- scikit-learn (TF-IDF embeddings)
-- Postman for API testing
-
----
-
-## Security Design
-
-- PDFs are stored in a **private Supabase bucket**
-- Students never receive raw file paths
-- Access is provided only via short-lived signed URLs
-- Session expiry is enforced at backend level
-
----
-
-## Project Status
-
-This repository currently contains:
-- Authenticated teacher upload flow
-- Supabase storage integration
-- Session creation with expiry
-- Lightweight RAG indexing pipeline
-
-Upcoming:
-- Student access endpoint
-- Signed URL generation
-- Auto cleanup of expired sessions
-- Improved retrieval quality
-
----
-
-## Why this project?
-
-This project focuses on **practical backend engineering**:
-- Secure access control
-- Memory-aware system design
-- Avoiding unnecessary abstractions
-- Clear trade-offs and incremental scaling
-
-Built intentionally without over-engineering.
+For development details, see developer.md.

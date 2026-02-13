@@ -1,2 +1,213 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
 @import "tailwindcss";
+
+:root {
+	--ink: #0c1424;
+	--ink-muted: #566074;
+	--accent: #1f4fff;
+	--accent-soft: #cfe0ff;
+	--surface: #ffffff;
+	--surface-2: #f6f7fb;
+	--border: rgba(12, 20, 36, 0.12);
+	--grid: rgba(12, 20, 36, 0.04);
+}
+
+body {
+	font-family: "Space Grotesk", "Segoe UI", sans-serif;
+	color: var(--ink);
+	background:
+		radial-gradient(70rem 40rem at 12% 8%, rgba(233, 241, 255, 0.95) 0%, transparent 55%),
+		radial-gradient(60rem 35rem at 90% 12%, rgba(247, 232, 255, 0.9) 0%, transparent 50%),
+		linear-gradient(180deg, #f9fafc 0%, #eef1f7 100%);
+	min-height: 100vh;
+}
+
+.theme-page {
+	min-height: 100vh;
+	padding: 1.5rem 1rem;
+	position: relative;
+	isolation: isolate;
+}
+
+@media (min-width: 640px) {
+	.theme-page {
+		padding: 2rem 1.5rem;
+	}
+}
+
+@media (min-width: 768px) {
+	.theme-page {
+		padding: 3rem 1rem;
+	}
+}
+
+.theme-page::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(var(--grid) 1px, transparent 1px),
+		linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+	background-size: 22px 22px;
+	opacity: 0.6;
+	mask-image: radial-gradient(circle at 50% 18%, rgba(0, 0, 0, 0.95) 0%, transparent 72%);
+	pointer-events: none;
+	z-index: -1;
+}
+
+.theme-container {
+	max-width: 72rem;
+	margin: 0 auto;
+}
+
+.theme-grid {
+	background:
+		linear-gradient(rgba(12, 20, 36, 0.06) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(12, 20, 36, 0.06) 1px, transparent 1px),
+		rgba(255, 255, 255, 0.78);
+	background-size: 22px 22px;
+	border: 1px solid rgba(12, 20, 36, 0.08);
+	box-shadow: 0 20px 50px rgba(12, 20, 36, 0.08);
+	border-radius: 24px;
+	backdrop-filter: blur(6px);
+}
+
+.theme-card {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	box-shadow: 0 18px 40px rgba(12, 20, 36, 0.08);
+	border-radius: 18px;
+}
+
+.theme-title {
+	font-family: "Sora", "Segoe UI", sans-serif;
+}
+
+.theme-label {
+	color: var(--ink-muted);
+	font-weight: 500;
+}
+
+.theme-input {
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	padding: 0.7rem 0.9rem;
+	background: #fff;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	min-height: 44px;
+}
+
+@media (max-width: 640px) {
+	.theme-input {
+		font-size: 16px;
+		padding: 0.8rem 0.95rem;
+	}
+}
+
+.theme-input:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px rgba(31, 79, 255, 0.12);
+	transform: translateY(-1px);
+}
+
+.theme-button-primary {
+	background: var(--accent);
+	color: #fff;
+	border-radius: 14px;
+	padding: 0.75rem 1rem;
+	font-weight: 600;
+	box-shadow: 0 16px 30px rgba(31, 79, 255, 0.22);
+	transition: transform 0.15s ease, opacity 0.2s ease;
+	min-height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (max-width: 640px) {
+	.theme-button-primary {
+		min-height: 48px;
+		font-size: 16px;
+	}
+}
+
+.theme-button-primary:hover {
+	opacity: 0.95;
+	transform: translateY(-1px);
+}
+
+.theme-button-primary:active {
+	transform: translateY(0);
+}
+
+.theme-button-ghost {
+	background: #fff;
+	color: var(--ink);
+	border: 1px solid rgba(12, 20, 36, 0.18);
+	border-radius: 14px;
+	padding: 0.75rem 1rem;
+	font-weight: 600;
+	transition: border-color 0.2s ease, transform 0.15s ease;
+	min-height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (max-width: 640px) {
+	.theme-button-ghost {
+		min-height: 48px;
+		font-size: 16px;
+	}
+}
+
+.theme-button-ghost:hover {
+	border-color: rgba(12, 20, 36, 0.4);
+	transform: translateY(-1px);
+}
+
+.theme-button-ghost:active {
+	transform: translateY(0);
+}
+
+.theme-alert-error {
+	background: #fff2f2;
+	color: #b42318;
+	border: 1px solid rgba(180, 35, 24, 0.2);
+	border-radius: 12px;
+	padding: 0.7rem 0.9rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.theme-alert-success {
+	background: #effaf2;
+	color: #18753c;
+	border: 1px solid rgba(24, 117, 60, 0.2);
+	border-radius: 12px;
+	padding: 0.9rem 1rem;
+}
+
+.theme-chip {
+	background: rgba(255, 255, 255, 0.7);
+	color: var(--ink-muted);
+	border-radius: 999px;
+	padding: 0.35rem 0.75rem;
+	font-size: 0.875rem;
+}
+
+.theme-table {
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 16px 30px rgba(12, 20, 36, 0.06);
+}
+
+.theme-table th {
+	color: var(--ink-muted);
+	font-weight: 600;
+}
 

@@ -15,8 +15,7 @@ const api = axios.create({
 /* -----------------------------
    Route Guards
 ----------------------------- */
-const TEACHER_PATHS = ["/teacher"];
-const PUBLIC_PATHS = ["/auth/login/", "/auth/signup/"];
+const PUBLIC_PATHS = ["/auth/login/", "/auth/signup/", "/auth/refresh/"];
 
 let authRedirected = false;
 
@@ -29,6 +28,7 @@ function handleAuthFailure() {
   authRedirected = true;
   alert("Session expired. Please login again.");
   localStorage.removeItem("token");
+  localStorage.removeItem("refresh_token");
   window.location.href = "/login";
 }
 
@@ -36,15 +36,11 @@ function handleAuthFailure() {
    Request Interceptor
 ----------------------------- */
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
   const url = config.url || "";
+  const isPublicRequest = PUBLIC_PATHS.some((path) => url.startsWith(path));
+  const token = localStorage.getItem("token");
 
-  const isTeacherRequest = TEACHER_PATHS.some((path) =>
-    url.startsWith(path)
-  );
-
-  if (isTeacherRequest && !token) {
-    handleAuthFailure();
+  if (!isPublicRequest && !token) {
     throw new axios.Cancel("Missing auth token");
   }
 
@@ -60,7 +56,7 @@ api.interceptors.request.use((config) => {
 ----------------------------- */
 api.interceptors.response.use(
   (response) => response.data,
-  (error) => {
+  async (error) => {
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }
@@ -70,12 +66,33 @@ api.interceptors.response.use(
       url.startsWith(path)
     );
 
-    if (
-      error.response?.status === 401 &&
-      !isPublicRequest &&
-      localStorage.getItem("token")
-    ) {
-      handleAuthFailure();
+    if (error.response?.status === 401 && !isPublicRequest) {
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      if (!refreshToken) {
+        handleAuthFailure();
+        return Promise.reject(error);
+      }
+
+      try {
+        const refreshResponse = await api.post("/auth/refresh/", {
+          refresh: refreshToken,
+        });
+
+        const newAccess = refreshResponse.access;
+        localStorage.setItem("token", newAccess);
+
+        const retryConfig = { ...error.config };
+        retryConfig.headers = {
+          ...(retryConfig.headers || {}),
+          Authorization: `Bearer ${newAccess}`,
+        };
+
+        return api.request(retryConfig);
+      } catch (refreshError) {
+        handleAuthFailure();
+        return Promise.reject(refreshError);
+      }
     }
 
     const message =
@@ -96,6 +113,9 @@ export const signup = (email, password) =>
 
 export const login = (email, password) =>
   api.post("/auth/login/", { email, password });
+
+export const refreshToken = (refresh) =>
+  api.post("/auth/refresh/", { refresh });
 
 export const uploadPDF = (file, expiresAt) => {
   const formData = new FormData();

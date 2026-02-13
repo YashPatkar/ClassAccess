@@ -81,22 +81,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+USE_POSTGRES = os.getenv("USE_POSTGRES", "false").lower() == "true"
 
-if DATABASE_URL:
+if USE_POSTGRES:
     DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ["DATABASE_URL"],
-        conn_max_age=600,
-        ssl_require=True,
-    )
-    }
-
-    DATABASES["default"]["OPTIONS"] = {
-        "sslmode": "require",
-        "options": "-c inet_family=inet"
+        "default": dj_database_url.parse(
+            os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
 else:
     DATABASES = {

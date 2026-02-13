@@ -5,13 +5,13 @@
         "**/.hg": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
-        "backend/uv.lock": true,
-        "backend/pyproject.toml": true,
-        "backend/.python-version": true
+        "backend/celerybeat-schedule.dat": true,
+        "backend/celerybeat-schedule.dir": true,
+        "backend/celerybeat-schedule.bak": true
     },
     "hide-files.files": [
-        "backend/uv.lock",
-        "backend/pyproject.toml",
-        "backend/.python-version"
+        "backend/celerybeat-schedule.dat",
+        "backend/celerybeat-schedule.dir",
+        "backend/celerybeat-schedule.bak"
     ]
 }

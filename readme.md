@@ -4,7 +4,7 @@ ClassAccess is a secure PDF sharing platform that lets teachers upload documents
 
 ## Features
 
-- JWT-based teacher authentication (SimpleJWT)
+- JWT based teacher authentication (SimpleJWT)
 - PDF upload with session codes and expiry windows
 - Private Supabase Storage with signed URL access
 - Student access by code without login
